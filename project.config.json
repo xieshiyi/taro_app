@@ -1,13 +1,18 @@
 {
-  "miniprogramRoot": "./dist",
-  "projectname": "taro_app",
-  "description": "Taro + Taro UI + Redux ",
-  "appid": "touristappid",
-  "setting": {
-    "urlCheck": true,
-    "es6": false,
-    "postcss": false,
-    "minified": false
-  },
-  "compileType": "miniprogram"
+	"miniprogramRoot": "dist/",
+	"projectname": "taro_app",
+	"description": "Taro + Taro UI + Redux ",
+	"appid": "wxf0303dfc628a88b4",
+	"setting": {
+		"urlCheck": true,
+		"es6": true,
+		"postcss": true,
+		"minified": false,
+		"newFeature": true,
+		"nodeModules": true,
+		"autoAudits": true
+	},
+	"compileType": "miniprogram",
+	"libVersion": "2.6.5",
+	"condition": {}
 }

@@ -7,6 +7,8 @@ import Index from './pages/index'
 import configStore from './store'
 
 import './app.less'
+import 'taro-ui/dist/style/index.scss' // 全局引入一次即可
+import 'ionicons/dist/scss/ionicons.scss'
 
 // 如果需要在 h5 环境中开启 React Devtools
 // 取消以下注释：
@@ -27,13 +29,43 @@ class App extends Component {
    */
   config: Config = {
     pages: [
-      'pages/index/index'
+      'pages/index/index',
+      'pages/activity/index',
+      'pages/git/index',
+      'pages/account/index'
     ],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
+    },
+    tabBar: {
+      list: [{
+        pagePath: 'pages/index/index',
+        text: 'Trending',
+        iconPath: './assets/images/tab_trend.png',
+        selectedIconPath: './assets/images/tab_trend_s.png'
+      }, {
+        pagePath: 'pages/activity/index',
+        text: 'Activity',
+        iconPath: './assets/images/tab_news.png',
+        selectedIconPath: './assets/images/tab_news_s.png'
+      }, {
+        pagePath: 'pages/git/index',
+        text: 'Git',
+        iconPath: './assets/images/tab_git.png',
+        selectedIconPath: './assets/images/tab_git_s.png'
+      }, {
+        pagePath: 'pages/account/index',
+        text: 'Me',
+        iconPath: './assets/images/tab_me.png',
+        selectedIconPath: './assets/images/tab_me_s.png'
+      }],
+      color: '#8a8a8a',
+      selectedColor: '#2d8cf0',
+      backgroundColor: '#ffffff',
+      borderStyle: 'white'
     }
   }
 

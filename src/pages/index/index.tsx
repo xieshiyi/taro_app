@@ -1,12 +1,12 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Button, Text } from '@tarojs/components'
-import { connect } from '@tarojs/redux'
-
-import { add, minus, asyncAdd } from '../../actions/counter'
-
+import { View, Text } from '@tarojs/components'
+// import { connect } from '@tarojs/redux'
+// import {  } from 'taro-ui'
 import './index.less'
-
+import { IListItem, IUserItem } from './types/index.t'
+import RepoItem from '../../components/repo-item'
+import UserItem from '../../components/user-item'
 // #region 书写注意
 // 
 // 目前 typescript 版本还无法在装饰器模式下将 Props 注入到 Taro.Component 中的 props 属性
@@ -17,41 +17,27 @@ import './index.less'
 //
 // #endregion
 
-type PageStateProps = {
-  counter: {
-    num: number
-  }
-}
+type PageStateProps = {}
 
-type PageDispatchProps = {
-  add: () => void
-  dec: () => void
-  asyncAdd: () => any
-}
+type PageDispatchProps = {}
 
 type PageOwnProps = {}
 
-type PageState = {}
+type PageState = {
+  current: number,
+  page_size: number,
+  page_num: number,
+  total: number,
+  list: IListItem[],
+  user_list: IUserItem[]
+}
 
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
 
 interface Index {
   props: IProps;
+  state: PageState
 }
-
-@connect(({ counter }) => ({
-  counter
-}), (dispatch) => ({
-  add () {
-    dispatch(add())
-  },
-  dec () {
-    dispatch(minus())
-  },
-  asyncAdd () {
-    dispatch(asyncAdd())
-  }
-}))
 class Index extends Component {
 
     /**
@@ -62,13 +48,40 @@ class Index extends Component {
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
     config: Config = {
-    navigationBarTitleText: '首页'
+    navigationBarTitleText: 'Trending'
   }
-
-  componentWillReceiveProps (nextProps) {
-    console.log(this.props, nextProps)
+  constructor (props) {
+    super(props)
+    this.state = {
+      current: 0,
+      page_size: 10,
+      page_num: 1,
+      total: 0,
+      list: [{
+        id: 0,
+        author: 'xsy',
+        repo_name: 'fsf',         // 仓库名称
+        desc: 'description 描述描述描述，关于仓库描述文案',              // 项目描述
+        lang_type: 'javascript',        // 语言类型
+        lang_color: '#F5D222',
+        star_num: 10,         // 星数
+        fork_num: 104,         // fork数
+        today_star_num: 2043    // 今日星数
+      }],
+      user_list: [{
+        id: 0,
+        author: '',
+        avatar: '',
+        repo_name: '',         // 仓库名称
+        desc: ''    
+      }]
+    }
   }
-
+  changeCurrent(index: number){
+    this.setState({
+      current: index
+    })
+  }
   componentWillUnmount () { }
 
   componentDidShow () { }
@@ -76,13 +89,49 @@ class Index extends Component {
   componentDidHide () { }
 
   render () {
+    const { current, list, user_list }  = this.state
+    console.log(list)
     return (
       <View className='index'>
-        <Button className='add_btn' onClick={this.props.add}>+</Button>
-        <Button className='dec_btn' onClick={this.props.dec}>-</Button>
-        <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
-        <View><Text>{this.props.counter.num}</Text></View>
-        <View><Text>Hello, World</Text></View>
+        <View className="top-nav">
+          {/* 过滤icon */}
+          <View className='at-icon at-icon-filter'></View>
+          {/* tabs标签页 */}
+          <View className='tabs'>
+            <Text 
+              className={`tab-item ${current === 0 ? "active" : ""}`} 
+              onClick={()=>this.changeCurrent(0)}>
+              REPO</Text>
+            <Text 
+              className={`tab-item ${current === 1 ? "active" : ""}`} 
+              onClick={()=>this.changeCurrent(1)}>
+              USER</Text>
+          </View>
+          {/* 搜索icon */}
+          <View className='at-icon at-icon-search'></View>
+        </View>
+        <View 
+          className='tab-pane'
+          style={`display: ${current === 0 ? 'block' : 'none'}`}>
+          <View className='repo-list'>
+            {
+              list.map(item=>{
+                return <RepoItem item={item} key={item.id} categoryType={1}></RepoItem>
+              })
+            }
+          </View>
+        </View>
+        <View 
+          className='tab-pane'
+          style={`display: ${current === 1 ? 'block' : 'none'}`}>
+          <View className="user-item">
+          {
+              user_list.map(item=>{
+                return <UserItem item={item} key={item.id}></UserItem>
+              })
+            }
+          </View>
+        </View>
       </View>
     )
   }
