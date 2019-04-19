@@ -33,7 +33,15 @@ class Index extends Component {
     const { item }  = this.props
     return (
       <View className='user-item'>
-       	<AtAvatar circle image='https://jdc.jd.com/img/200'></AtAvatar>
+       	<AtAvatar circle image={item.avatar}></AtAvatar>
+        <View className="info">
+          <View className="info-author">{item.author}</View>
+          <View className="info-repo">
+            <View className="at-icon at-icon-bookmark"></View>
+            <Text className="info-repo-name">{item.repo_name}</Text>
+          </View>
+          <View className="info-desc">{item.desc}</View>
+        </View>
       </View>
     )
   }

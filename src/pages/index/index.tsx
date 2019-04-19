@@ -53,7 +53,7 @@ class Index extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      current: 0,
+      current: 1,
       page_size: 10,
       page_num: 1,
       total: 0,
@@ -70,10 +70,10 @@ class Index extends Component {
       }],
       user_list: [{
         id: 0,
-        author: '',
-        avatar: '',
-        repo_name: '',         // 仓库名称
-        desc: ''    
+        author: 'xsy',
+        avatar: 'https://jdc.jd.com/img/200',
+        repo_name: 'fsf',         // 仓库名称
+        desc: '描述描述描述，关于仓库描述文案'    
       }]
     }
   }
@@ -90,7 +90,6 @@ class Index extends Component {
 
   render () {
     const { current, list, user_list }  = this.state
-    console.log(list)
     return (
       <View className='index'>
         <View className="top-nav">
@@ -124,7 +123,7 @@ class Index extends Component {
         <View 
           className='tab-pane'
           style={`display: ${current === 1 ? 'block' : 'none'}`}>
-          <View className="user-item">
+          <View className="user-list">
           {
               user_list.map(item=>{
                 return <UserItem item={item} key={item.id}></UserItem>
