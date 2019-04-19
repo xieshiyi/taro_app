@@ -12,7 +12,8 @@ type PageStateProps = {}
 type PageDispatchProps = {}
 
 type PageOwnProps = {
-  item: IListItem
+  item: IListItem,
+  categoryType: number
 }
 type PageState = {}
 
@@ -30,17 +31,27 @@ class Index extends Component {
   componentDidHide () { }
 
   render () {
-    const { item }  = this.props
+    const { item, categoryType }  = this.props
+    let currentPeriod: string = ""
+    if (categoryType === 0) {
+      currentPeriod = item.time + ' hour(s) ago'
+    }else if (categoryType === 1) {
+      currentPeriod = item.time + ' day(s) ago'
+    }else if (categoryType === 2) {
+      currentPeriod = item.time + ' week(s) ago'
+    } else if (categoryType === 3){
+      currentPeriod = item.time + ''
+    }
     return (
-      <View className='user-item'>
-       	<AtAvatar size="large" circle image={item.avatar}></AtAvatar>
+      <View className='activity-item'>
+       	<AtAvatar circle image={item.avatar}></AtAvatar>
         <View className="info">
-          <View className="info-author">{item.author}</View>
-          <View className="info-repo">
-            <View className="at-icon at-icon-bookmark"></View>
-            <Text className="info-repo-name">{item.repo_name}</Text>
+          <View className="info-user">
+            <Text>{item.user_name}</Text>
+            <Text style='margin: 0 10rpx; color: #000'>starred</Text> 
+            <Text>{item.author}/{item.repo_name}</Text>
           </View>
-          <View className="info-desc">{item.desc}</View>
+          <View className="info-time">{currentPeriod}</View>
         </View>
       </View>
     )

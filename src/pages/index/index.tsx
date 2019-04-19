@@ -1,8 +1,6 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
-// import { connect } from '@tarojs/redux'
-// import {  } from 'taro-ui'
 import './index.less'
 import { IListItem, IUserItem } from './types/index.t'
 import RepoItem from '../../components/repo-item'
@@ -53,7 +51,7 @@ class Index extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      current: 1,
+      current: 0,
       page_size: 10,
       page_num: 1,
       total: 0,

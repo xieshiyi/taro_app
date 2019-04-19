@@ -1,47 +1,29 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Button, Text } from '@tarojs/components'
-import { connect } from '@tarojs/redux'
-
-import { add, minus, asyncAdd } from '../../actions/counter'
-
+import { View } from '@tarojs/components'
+import ActivityItem from '../../components/activity-item'
+import { IListItem } from '../../components/activity-item/types/index.t';
 import './index.less'
 
-type PageStateProps = {
-  counter: {
-    num: number
-  }
-}
+type PageStateProps = {}
 
-type PageDispatchProps = {
-  add: () => void
-  dec: () => void
-  asyncAdd: () => any
-}
+type PageDispatchProps = {}
 
 type PageOwnProps = {}
 
-type PageState = {}
+type PageState = {
+  page_size: number,
+  page_num: number,
+  total: number,
+  list: IListItem[]
+}
 
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
 
 interface Index {
   props: IProps;
+  state: PageState
 }
-
-@connect(({ counter }) => ({
-  counter
-}), (dispatch) => ({
-  add () {
-    dispatch(add())
-  },
-  dec () {
-    dispatch(minus())
-  },
-  asyncAdd () {
-    dispatch(asyncAdd())
-  }
-}))
 class Index extends Component {
 
     /**
@@ -54,11 +36,23 @@ class Index extends Component {
     config: Config = {
     navigationBarTitleText: 'Activity'
   }
-
-  componentWillReceiveProps (nextProps) {
-    console.log(this.props, nextProps)
+  constructor (props) {
+    super(props)
+    this.state = {
+      page_num: 1,
+      page_size: 10,
+      total: 0,
+      list: [{
+        id: 0,
+        avatar: 'https://jdc.jd.com/img/200',
+        user_name: 'xsy',
+        repo_name: 'taro_app',
+        author: 'xsy',
+        time: 5,
+        category: 1
+      }]
+    }
   }
-
   componentWillUnmount () { }
 
   componentDidShow () { }
@@ -66,9 +60,14 @@ class Index extends Component {
   componentDidHide () { }
 
   render () {
+    const { list } = this.state
     return (
-      <View className='index'>
-        
+      <View className='activity'>
+        {
+          list.map(item=>{
+            return <ActivityItem item={item} key={item.id} categoryType={item.category}></ActivityItem>
+          })
+        }
       </View>
     )
   }
