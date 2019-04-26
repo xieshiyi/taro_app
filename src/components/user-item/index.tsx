@@ -1,7 +1,7 @@
 import { ComponentClass } from 'react'
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
-import { IListItem } from "./types/index.t"
+import { IUserItem } from "./types/index.t"
 import { AtAvatar } from 'taro-ui'
 import './index.less'
 import "taro-ui/dist/style/components/avatar.scss"
@@ -12,7 +12,7 @@ type PageStateProps = {}
 type PageDispatchProps = {}
 
 type PageOwnProps = {
-  item: IListItem
+  item: IUserItem
 }
 type PageState = {}
 
@@ -35,12 +35,12 @@ class Index extends Component {
       <View className='user-item'>
        	<AtAvatar size="large" circle image={item.avatar}></AtAvatar>
         <View className="info">
-          <View className="info-author">{item.author}</View>
+          <View className="info-author">{item.username}</View>
           <View className="info-repo">
             <View className="at-icon at-icon-bookmark"></View>
-            <Text className="info-repo-name">{item.repo_name}</Text>
+            <Text className="info-repo-name">{item.repo.name}</Text>
           </View>
-          <View className="info-desc">{item.desc}</View>
+          <View className="info-desc">{item.repo.description}</View>
         </View>
       </View>
     )

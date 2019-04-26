@@ -69,7 +69,12 @@ class App extends Component {
     }
   }
 
-  componentDidMount () {}
+  componentDidMount () {
+    wx.cloud.init({
+      env: 'my-gitte-1a9486',
+      traceUser: true
+    })
+  }
 
   componentDidShow () {}
 

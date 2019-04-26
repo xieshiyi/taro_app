@@ -1,7 +1,14 @@
-export type IListItem =  {
-    id: number
-    avatar: string           // 用户头像
-    author: string           // 作者
-    repo_name:string         // 仓库名称
-    desc:string              // 项目描述
-  }
+export interface IUserItem {
+  id: number
+  username: string
+  url: string
+  author: string
+  avatar: string
+  repo: IRepo         // 仓库
+  description: string              // 项目描述
+}
+export type IRepo = {
+  name: string
+  description: string
+  url: string
+}

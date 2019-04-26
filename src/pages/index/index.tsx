@@ -2,9 +2,13 @@ import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
 import './index.less'
-import { IListItem, IUserItem } from './types/index.t'
+import { IListItem, IUserItem, IRange, ILanguage } from './types/index.t'
 import RepoItem from '../../components/repo-item'
 import UserItem from '../../components/user-item'
+import Empty from '../../components/empty/index'
+import { get as getGlobalData, set as setGlobalData  } from '../../utils/global_data'
+import { languages } from '../../utils/language'
+import { GLOBAL_CONFIG } from '../../constants/globalConfig'
 // #region 书写注意
 // 
 // 目前 typescript 版本还无法在装饰器模式下将 Props 注入到 Taro.Component 中的 props 属性
@@ -22,12 +26,19 @@ type PageDispatchProps = {}
 type PageOwnProps = {}
 
 type PageState = {
+  fixed: boolean,
   current: number,
+  category: {
+    name: string,
+    value: string
+  }
   page_size: number,
   page_num: number,
   total: number,
-  list: IListItem[],
-  user_list: IUserItem[]
+  language: ILanguage,
+  repos: IListItem[],
+  developers: IUserItem[],
+  range: [IRange[], ILanguage[]]
 }
 
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
@@ -51,34 +62,43 @@ class Index extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      fixed: false,
       current: 0,
       page_size: 10,
       page_num: 1,
       total: 0,
-      list: [{
-        id: 0,
-        author: 'xsy',
-        repo_name: 'fsf',         // 仓库名称
-        desc: 'description 描述描述描述，关于仓库描述文案',              // 项目描述
-        lang_type: 'javascript',        // 语言类型
-        lang_color: '#F5D222',
-        star_num: 10,         // 星数
-        fork_num: 104,         // fork数
-        today_star_num: 2043    // 今日星数
-      }],
-      user_list: [{
-        id: 0,
-        author: 'xsy',
-        avatar: 'https://jdc.jd.com/img/200',
-        repo_name: 'fsf',         // 仓库名称
-        desc: '描述描述描述，关于仓库描述文案'    
-      }]
+      category: {
+        'name': 'Today',
+        'value': 'daily'
+      },
+      language: {
+        'name': 'All',
+        'urlParam': ''
+      },
+      repos: [],
+      developers: [],
+      range: [
+        [{'name': 'Today',
+        'value': 'daily'},
+        {'name': 'Week',
+          'value': 'weekly'},
+        {'name': 'Month',
+          'value': 'monthly'}],
+        languages
+      ]
     }
   }
   changeCurrent(index: number){
     this.setState({
       current: index
     })
+    Taro.pageScrollTo({
+      scrollTop: 0
+    })
+  }
+  componentDidMount(){
+    Taro.showLoading({ title: GLOBAL_CONFIG.LOADING_TEXT })
+    this.loadItemList()
   }
   componentWillUnmount () { }
 
@@ -86,11 +106,104 @@ class Index extends Component {
 
   componentDidHide () { }
 
+  onPageScroll(obj) {
+    const { fixed } = this.state
+    if (obj.scrollTop > 0) {
+      if (!fixed) {
+        this.setState({
+          fixed: true
+        })
+      }
+    } else {
+      this.setState({
+        fixed: false
+      })
+    }
+  }
+
+  loadLanguages() {
+    let that = this
+    const db = wx.cloud.database()
+    let openid = getGlobalData('openid')
+    if (!openid) {
+      openid = Taro.getStorageSync('openid')
+    }
+    db.collection('languages')
+      .where({
+        _openid: openid, // 当前用户 openid
+      })
+      .get()
+      .then(res => {
+        console.log(res)
+        if (res.data.length > 0) {
+          setGlobalData('favoriteLanguages', res.data[0].languages)
+          // that.updateLanguages()
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  }
+  loadItemList () {
+    const { current } = this.state
+    let that = this
+    wx.cloud.callFunction({
+      // 要调用的云函数名称
+      name: 'trend',
+      // 传递给云函数的event参数
+      data: {
+        type: 'repositories',
+        language: that.state.language.urlParam,
+        since: that.state.category.value
+      }
+    }).then(res => {
+      that.setState({
+        repos: res.result.data
+      }, ()=>{
+        Taro.pageScrollTo({
+          scrollTop: 0
+        })
+        if (current === 0) {
+          Taro.hideLoading()
+          Taro.stopPullDownRefresh()
+        }
+      })
+    }).catch(err => {
+      Taro.hideLoading()
+      Taro.stopPullDownRefresh()
+    })
+
+    wx.cloud.callFunction({
+      // 要调用的云函数名称
+      name: 'trend',
+      // 传递给云函数的event参数
+      data: {
+        type: 'developers',
+        language: that.state.language.urlParam,
+        since: that.state.category.value
+      }
+    }).then(res => {
+      that.setState({
+        developers: res.result.data
+      }, ()=>{
+        Taro.pageScrollTo({
+          scrollTop: 0
+        })
+        if (current === 1) {
+          Taro.stopPullDownRefresh()
+          Taro.hideLoading()
+        }
+      })
+    }).catch(err => {
+      Taro.hideLoading()
+      Taro.stopPullDownRefresh()
+    })
+  }
   render () {
-    const { current, list, user_list }  = this.state
+    const { current, repos, developers, fixed }  = this.state
     return (
       <View className='index'>
-        <View className="top-nav">
+        <View className={`top-nav ${fixed ? 'segment-fixed' : ''}`}>
           {/* 过滤icon */}
           <View className='at-icon at-icon-filter'></View>
           {/* tabs标签页 */}
@@ -110,24 +223,35 @@ class Index extends Component {
         <View 
           className='tab-pane'
           style={`display: ${current === 0 ? 'block' : 'none'}`}>
-          <View className='repo-list'>
-            {
-              list.map(item=>{
-                return <RepoItem item={item} key={item.id} categoryType={1}></RepoItem>
-              })
-            }
-          </View>
+          {
+            repos.length > 0 ?
+            <View className='repo-list'>
+              {
+                repos.map(item=>{
+                  return <RepoItem item={item} key={item.id} categoryType={1}></RepoItem>
+                })
+              }
+            </View>
+            :
+            <Empty />
+          }
         </View>
         <View 
           className='tab-pane'
           style={`display: ${current === 1 ? 'block' : 'none'}`}>
-          <View className="user-list">
           {
-              user_list.map(item=>{
+            developers.length > 0 ?
+            <View className="user-list">
+            {
+              developers.map(item=>{
                 return <UserItem item={item} key={item.id}></UserItem>
               })
             }
-          </View>
+            </View>
+            :
+            <Empty />
+          }
+          
         </View>
       </View>
     )
