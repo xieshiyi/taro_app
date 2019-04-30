@@ -27,14 +27,12 @@ type PageOwnProps = {}
 
 type PageState = {
   fixed: boolean,
+  isHidden: boolean,
   current: number,
   category: {
     name: string,
     value: string
   }
-  page_size: number,
-  page_num: number,
-  total: number,
   language: ILanguage,
   repos: IListItem[],
   developers: IUserItem[],
@@ -63,10 +61,8 @@ class Index extends Component {
     super(props)
     this.state = {
       fixed: false,
+      isHidden: false,
       current: 0,
-      page_size: 10,
-      page_num: 1,
-      total: 0,
       category: {
         'name': 'Today',
         'value': 'daily'
@@ -120,7 +116,31 @@ class Index extends Component {
       })
     }
   }
-
+  onScroll(e) {
+    if (e.detail.scrollTop < 0) return;
+    if (e.detail.deltaY > 0) {
+      let animation = Taro.createAnimation({
+        duration: 400,
+        timingFunction: 'ease',
+      }).bottom(25).step().export()
+      this.setState({
+        isHidden: false,
+        animation: animation
+      })
+    } else {
+      //向下滚动
+      if (!this.state.isHidden) {
+        let animation = Taro.createAnimation({
+          duration: 400,
+          timingFunction: 'ease',
+        }).bottom(-95).step().export()
+        this.setState({
+          isHidden: true,
+          animation: animation
+        })
+      }
+    }
+  }
   loadLanguages() {
     let that = this
     const db = wx.cloud.database()
